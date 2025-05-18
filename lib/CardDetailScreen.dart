@@ -3,6 +3,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:mi_wallet/AddTransactionScreen.dart';
 import 'package:mi_wallet/db_helper.dart';
+import 'package:mi_wallet/AgregarAhorroScreen.dart';
 
 class CardDetailScreen extends StatefulWidget {
   final String correo;
@@ -26,6 +27,7 @@ class _CardDetailScreenState extends State<CardDetailScreen>
   List<Map<String, dynamic>> _movimientos = [];
   double _cardBalance = 0.0;
   double? _saldoBase;
+  double _ahorro = 0.0;
   String toTitleCase(String text) {
     if (text.isEmpty) return text;
     return text[0].toUpperCase() + text.substring(1).toLowerCase();
@@ -40,19 +42,6 @@ class _CardDetailScreenState extends State<CardDetailScreen>
       _cardBalance = _saldoBase!;
       _fetchMovimientos();
     });
-  }
-
-  Future<void> _fetchMovimientos() async {
-    try {
-      final data = await _dbHelper.obtenerMovimientos(
-        widget.correo,
-        widget.card['id'],
-      );
-      setState(() => _movimientos = data);
-      _recalcularSaldoYTotales();
-    } catch (e) {
-      print('Error al obtener movimientos locales: $e');
-    }
   }
 
   void _recalcularSaldoYTotales() {
@@ -99,12 +88,39 @@ class _CardDetailScreenState extends State<CardDetailScreen>
       (t) => t['id'] == widget.card['id'],
       orElse: () => {},
     );
+
     if (tarjetaActualizada.isNotEmpty) {
+      final ahorro = await _dbHelper.obtenerAhorroPorTarjeta(
+        widget.correo,
+        widget.card['id'],
+      );
       setState(() {
         _cardBalance =
             double.tryParse(tarjetaActualizada['monto'].toString()) ??
             _cardBalance;
+        _ahorro = ahorro;
       });
+    }
+  }
+
+  Future<void> _fetchMovimientos() async {
+    try {
+      final data = await _dbHelper.obtenerMovimientos(
+        widget.correo,
+        widget.card['id'],
+      );
+      final ahorro = await _dbHelper.obtenerAhorroPorTarjeta(
+        widget.correo,
+        widget.card['id'],
+      );
+
+      setState(() {
+        _movimientos = data;
+        _ahorro = ahorro;
+      });
+      _recalcularSaldoYTotales();
+    } catch (e) {
+      print('Error al obtener movimientos: $e');
     }
   }
 
@@ -287,6 +303,37 @@ class _CardDetailScreenState extends State<CardDetailScreen>
             'Vence: ${card['fecha_vencimiento']}',
             style: const TextStyle(color: Colors.white, fontSize: 16.0),
           ),
+          const SizedBox(height: 30),
+          ElevatedButton.icon(
+            onPressed: () async {
+              final inserted = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => AgregarAhorroScreen(
+                        correo: widget.correo,
+                        tarjetaId: widget.card['id'],
+                        nombreTarjeta: widget.card['nombre_tarjeta'],
+                      ),
+                ),
+              );
+
+              if (inserted == true) {
+                await _fetchMovimientos();
+                await _actualizarMontoTarjeta();
+              }
+            },
+            icon: Icon(Icons.savings, color: Colors.white),
+            label: Text("Ahorrar"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF4568DC),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -384,23 +431,38 @@ class _CardDetailScreenState extends State<CardDetailScreen>
 
   // Muestra el saldo de la tarjeta.
   Widget _buildCardBalance(_) {
-    final bal = _cardBalance.toStringAsFixed(2);
+    final saldoDisponible = (_cardBalance - _ahorro).toStringAsFixed(2);
+    final ahorroFormateado = _ahorro.toStringAsFixed(2);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFFEDEDED), // gris claro uniforme
+        color: const Color(0xFFEDEDED),
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 5, offset: Offset(0, 3)),
         ],
       ),
-      child: Text(
-        "\$$bal",
-        style: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Saldo disponible: \$$saldoDisponible",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Ahorro: \$$ahorroFormateado",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.green[700], // Verde para destacar el ahorro
+            ),
+          ),
+        ],
       ),
     );
   }

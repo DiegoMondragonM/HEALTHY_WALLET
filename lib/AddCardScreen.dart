@@ -328,7 +328,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
             );
           } else if (index == 2) {
             // Estamos en Agregar Tarjeta; no hacemos nada.
-          } else if (index == 3) {
+          } else if (index == 4) {
             // Perfil
             Navigator.pushReplacement(
               context,
@@ -356,6 +356,10 @@ class _AddCardScreenState extends State<AddCardScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.add_card_rounded),
             label: "Agregar Tarjeta",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.tips_and_updates_outlined),
+            label: "Recomendaciones",
           ),
 
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),

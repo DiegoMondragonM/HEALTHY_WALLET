@@ -6,6 +6,7 @@ import 'package:mi_wallet/ProfileScreen.dart';
 import 'package:mi_wallet/SaludFinancieraScreen.dart';
 //import 'package:http/http.dart' as http;
 import 'package:mi_wallet/db_helper.dart';
+import 'package:mi_wallet/Recomendaciones.dart';
 
 class WalletScreen extends StatefulWidget {
   final String nombreUsuario; // sigue disponible si quieres mostrar el nombre
@@ -236,6 +237,20 @@ class _WalletScreenState extends State<WalletScreen> {
               }
             });
           } else if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => RecomendacionesScreen(
+                      correo: widget.correo,
+                      nombreUsuario: widget.nombreUsuario,
+                    ),
+              ),
+            );
+            setState(() {
+              _currentIndex = index;
+            });
+          } else if (index == 4) {
             // Perfil: navega a la pantalla de Perfil (ejemplo).
             Navigator.pushReplacement(
               context,
@@ -262,6 +277,10 @@ class _WalletScreenState extends State<WalletScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.add_card_rounded),
             label: "Agregar Tarjeta",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.tips_and_updates_outlined),
+            label: "Recomendaciones",
           ),
 
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),

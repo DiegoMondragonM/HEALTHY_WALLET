@@ -20,6 +20,16 @@ class DBHelper {
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
+  CREATE TABLE ahorros (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    correo TEXT,
+    tarjeta_id INTEGER,
+    monto REAL,
+    fecha TEXT
+  )
+''');
+
+    await db.execute('''
       CREATE TABLE usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT,
@@ -54,6 +64,21 @@ class DBHelper {
         fecha_movimiento TEXT
       )
     ''');
+  }
+
+  Future<int> insertarAhorro(Map<String, dynamic> ahorro) async {
+    final dbClient = await db;
+    return await dbClient.insert('ahorros', ahorro);
+  }
+
+  Future<double> obtenerAhorroPorTarjeta(String correo, int tarjetaId) async {
+    final dbClient = await db;
+    final result = await dbClient.rawQuery(
+      'SELECT SUM(monto) as total FROM ahorros WHERE correo = ? AND tarjeta_id = ?',
+      [correo, tarjetaId],
+    );
+    final total = result.first['total'];
+    return total != null ? (total as num).toDouble() : 0.0;
   }
 
   // ─── TARJETAS ──────────────────────────────────────

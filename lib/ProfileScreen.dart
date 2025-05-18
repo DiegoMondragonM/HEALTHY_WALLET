@@ -3,6 +3,7 @@ import 'package:mi_wallet/AddCardScreen.dart';
 import 'package:mi_wallet/SaludFinancieraScreen.dart';
 import 'package:mi_wallet/WalletScreen.dart';
 import 'package:mi_wallet/login_screen.dart';
+import 'package:mi_wallet/Recomendaciones.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String nombreUsuario;
@@ -21,7 +22,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   // Como en el menú de Wallet, la pestaña de Perfil es la última (índice 3)
-  int _currentIndex = 3;
+  int _currentIndex = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -88,9 +89,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
             // Después de regresar de AddCardScreen, actualiza el índice.
             setState(() {
-              _currentIndex = 3; // Regresa al índice de Perfil.
+              _currentIndex = 4; // Regresa al índice de Perfil.
             });
           } else if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => RecomendacionesScreen(
+                      correo: widget.correo,
+                      nombreUsuario: widget.nombreUsuario,
+                    ),
+              ),
+            );
+            setState(() {
+              _currentIndex = index;
+            });
+          } else if (index == 4) {
             // Ítem "Perfil": ya estás en esta pantalla.
             setState(() {
               _currentIndex = index;
@@ -108,6 +123,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.add_card_rounded),
             label: "Agregar Tarjeta",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.tips_and_updates_outlined),
+            label: "Recomendaciones",
           ),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
         ],

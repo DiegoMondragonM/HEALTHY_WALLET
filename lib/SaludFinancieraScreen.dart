@@ -5,6 +5,7 @@ import 'package:mi_wallet/AddCardScreen.dart';
 import 'package:mi_wallet/ProfileScreen.dart';
 import 'package:mi_wallet/WalletScreen.dart';
 import 'package:mi_wallet/db_helper.dart';
+import 'package:mi_wallet/Recomendaciones.dart';
 
 class Tarjeta {
   final int id;
@@ -656,12 +657,74 @@ class _SaludFinancieraScreenState extends State<SaludFinancieraScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '\$${_tarjetas.fold(0.0, (total, tarjeta) => total + tarjeta.monto).toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      //ajuste para el ahorro
+                      FutureBuilder<List<double>>(
+                        future:
+                            _tarjetas.isNotEmpty
+                                ? Future.wait(
+                                  _tarjetas.map((t) async {
+                                    try {
+                                      return await _dbHelper
+                                          .obtenerAhorroPorTarjeta(
+                                            widget.correo,
+                                            t.id,
+                                          );
+                                    } catch (e) {
+                                      print(
+                                        "Error al obtener ahorro de tarjeta ${t.id}: $e",
+                                      );
+                                      return 0.0;
+                                    }
+                                  }).toList(),
+                                )
+                                : Future.value([]),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData ||
+                              snapshot.data == null ||
+                              snapshot.data!.length != _tarjetas.length) {
+                            return const Text(
+                              'Cargando...',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          }
+
+                          final ahorros = snapshot.data!;
+                          double saldoTotal = 0.0;
+                          double totalAhorros = 0.0;
+
+                          for (int i = 0; i < _tarjetas.length; i++) {
+                            final tarjeta = _tarjetas[i];
+                            final ahorro =
+                                i < ahorros.length ? ahorros[i] : 0.0;
+                            saldoTotal += (tarjeta.monto - ahorro);
+                            totalAhorros += ahorro;
+                          }
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '\$${saldoTotal.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Total ahorrado: \$${totalAhorros.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -883,6 +946,20 @@ class _SaludFinancieraScreenState extends State<SaludFinancieraScreen> {
               _currentIndex = 1; // Regresa al índice de Salud Financiera.
             });
           } else if (index == 3) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => RecomendacionesScreen(
+                      correo: widget.correo,
+                      nombreUsuario: widget.nombreUsuario,
+                    ),
+              ),
+            );
+            setState(() {
+              _currentIndex = index;
+            });
+          } else if (index == 4) {
             // Perfil: navega a la pantalla de Perfil (ejemplo).
             Navigator.pushReplacement(
               context,
@@ -909,6 +986,10 @@ class _SaludFinancieraScreenState extends State<SaludFinancieraScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.add_card_rounded),
             label: "Agregar Tarjeta",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.tips_and_updates_outlined),
+            label: "Recomendaciones",
           ),
 
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
