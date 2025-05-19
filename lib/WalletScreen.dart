@@ -111,15 +111,17 @@ class _WalletScreenState extends State<WalletScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+         automaticallyImplyLeading: false, // Esto remueve la flecha de retroceso
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Hola!',
+              '¡Hola Bienvenido a',
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
             Text(
-              widget.nombreUsuario,
+              'Healthy Wallet! 👋',
+              //widget.nombreUsuario,
               style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -280,7 +282,8 @@ class _WalletScreenState extends State<WalletScreen> {
           const SizedBox(height: 20.0),
           const Text(
             '¡Ups! Aún no tienes tarjetas registradas.',
-            style: TextStyle(fontSize: 17.0, color: Colors.black),
+            style: TextStyle(fontSize: 14.0, color: Colors.black),
+            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           const Text(
@@ -314,183 +317,182 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Widget _buildCardStack() {
-    return SizedBox(
-      height: 280,
-      child: PageView.builder(
-        scrollDirection: Axis.vertical,
-        itemCount: userCards.length,
-        controller: _pageController,
-        itemBuilder: (context, index) {
-          final card = userCards[index];
-          return AnimatedBuilder(
-            animation: _pageController,
-            builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(0, index * 20),
-                child: GestureDetector(
-                  onTap: () => _showCardDetails(card),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(card['color'] ?? 0xFF4568DC),
-                          Color(card['color'] ?? 0xFF4568DC).withOpacity(0.6),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 12,
-                          offset: Offset(4, 4),
-                        ),
-                        BoxShadow(
-                          color: Colors.white24,
-                          blurRadius: 6,
-                          offset: Offset(-4, -4),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.15),
-                        width: 1,
-                      ),
-                    ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Dimensiones disponibles para cálculos relativos.
+        final availableHeight = constraints.maxHeight;
+        // Ajustamos la altura de la tarjeta al 35% de la altura disponible.
+        final cardHeight = availableHeight * 0.35;
+        // Reducimos el margen vertical (antes 0.10, ahora 0.09)
+        final verticalMargin = availableHeight * 0.08;
+        // Offset entre tarjetas (se mantiene o se puede ajustar)
+        final offsetMultiplier = availableHeight * 0.01;
 
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            card['nombre_tarjeta'] ?? '',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+        return SizedBox(
+          height: cardHeight,
+          child: PageView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: userCards.length,
+            controller: _pageController,
+            itemBuilder: (context, index) {
+              final card = userCards[index];
+              return AnimatedBuilder(
+                animation: _pageController,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, index * offsetMultiplier),
+                    child: GestureDetector(
+                      onTap: () => _showCardDetails(card),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: EdgeInsets.symmetric(vertical: verticalMargin),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(card['color'] ?? 0xFF4568DC),
+                              Color(
+                                card['color'] ?? 0xFF4568DC,
+                              ).withOpacity(0.6),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 8, bottom: 12),
-                            width: 45,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFF7D488), Color(0xFFC79125)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 2,
-                                  offset: Offset(1, 1),
-                                ),
-                              ],
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 12,
+                              offset: Offset(4, 4),
                             ),
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                  left: 5,
-                                  top: 6,
-                                  right: 5,
-                                  child: Container(
-                                    height: 2,
-                                    color: Colors.brown[800],
-                                  ),
-                                ),
-                                Positioned(
-                                  left: 5,
-                                  top: 13,
-                                  right: 5,
-                                  child: Container(
-                                    height: 2,
-                                    color: Colors.brown[800],
-                                  ),
-                                ),
-                                Positioned(
-                                  left: 5,
-                                  top: 20,
-                                  right: 5,
-                                  child: Container(
-                                    height: 2,
-                                    color: Colors.brown[800],
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 5,
-                                  bottom: 5,
-                                  left: 12,
-                                  child: Container(
-                                    width: 2,
-                                    color: Colors.brown[800],
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 5,
-                                  bottom: 5,
-                                  right: 12,
-                                  child: Container(
-                                    width: 2,
-                                    color: Colors.brown[800],
-                                  ),
-                                ),
-                              ],
+                            BoxShadow(
+                              color: Colors.white24,
+                              blurRadius: 6,
+                              offset: Offset(-4, -4),
                             ),
+                          ],
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.15),
+                            width: 1,
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            _formatCardNumber(card['numero_tarjeta']),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
+                        ),
+                        // Disminuimos el padding para recortar espacio extra
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                card['fecha_vencimiento'] ?? '',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    card['nombre_tarjeta'] ?? '',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Image.asset(
+                                    getCardLogoAsset(card['tipo_tarjeta']),
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.contain,
+                                  ),
+                                ],
+                              ),
+                              Center(
+                                child: Text(
+                                  _formatCardNumber(card['numero_tarjeta']),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    letterSpacing: 3.0,
+                                  ),
                                 ),
                               ),
-                              Text(
-                                card['tipo_tarjeta'] ?? '',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Bloque inferior izquierdo: "Monto" y monto
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'Monto',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '\$${NumberFormat.currency(locale: 'es_MX', symbol: '').format(card['monto'])}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  // Bloque inferior derecho: Fecha de vencimiento
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'Vence',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        card['fecha_vencimiento'] ?? '',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                          const Spacer(),
-                          Text(
-                            '\$${NumberFormat.currency(locale: 'es_MX', symbol: '').format(card['monto'])}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
+  }
+
+  String getCardLogoAsset(String? cardType) {
+    if (cardType == null) return 'assets/logo.png';
+    final lowerType = cardType.toLowerCase().trim();
+    if (lowerType.contains("american")) {
+      // Asegúrate de tener en tu assets un archivo llamado "american_express.png"
+      return 'assets/amex.png';
+    } else if (lowerType.contains("visa")) {
+      return 'assets/visa.png';
+    } else if (lowerType.contains("mastercard")) {
+      return 'assets/mastercard.png';
+    }
+    // Otra opción de fallback
+    return 'assets/logo.png';
   }
 
   Widget _buildCardItem(Map<String, dynamic> card) {

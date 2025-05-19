@@ -42,8 +42,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
     Colors.green[300]!,
     Colors.orange[300]!,
     Colors.red[300]!,
-    Colors.orange[300]!,
-    const Color(0xFFFF9800),
+    const Color(0xFF002A7E),
   ];
   @override
   void initState() {
@@ -256,6 +255,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                       controller: expiryDateController,
                       label: 'Fecha de Vencimiento (MM/AAAA)',
                       hintText: '12/2025',
+                      keyboardType: TextInputType.number,
                       inputFormatters: [ExpiryDateInputFormatter()],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -265,8 +265,8 @@ class _AddCardScreenState extends State<AddCardScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20.0),
-                    // Nuevo campo: PIN (opcional, numérico de 4 dígitos)
+                    const SizedBox(height: 40.0),
+                    /* Nuevo campo: PIN (opcional, numérico de 4 dígitos)
                     _buildOvalTextField(
                       controller: pinController,
                       label: 'Ingrese un PIN',
@@ -285,7 +285,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 40.0),
+                    const SizedBox(height: 40.0),*/
                     _buildColorPicker(), // Selector de color
                     const SizedBox(height: 40.0),
                     _buildSaveButton(),
@@ -311,6 +311,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
                           widget
                               .nombreUsuario, // aquí podrías pasar el nombre si lo guardas en sesión
                       correo: widget.correo,
+
                     ),
               ),
             );

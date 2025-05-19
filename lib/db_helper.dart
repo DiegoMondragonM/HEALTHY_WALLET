@@ -23,8 +23,11 @@ class DBHelper {
       CREATE TABLE usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nombre TEXT,
+        apellidoPaterno TEXT,
+        apellidoMaterno TEXT,
         correo TEXT UNIQUE,
-        password TEXT
+        password TEXT,
+        foto TEXT
       )
     ''');
 
@@ -196,5 +199,28 @@ class DBHelper {
       where: 'id = ? AND correo = ?',
       whereArgs: [tarjetaId, correo],
     );
+  }
+
+  /// Guarda (o actualiza) la ruta de la foto para el usuario identificado por correo.
+  Future<int> actualizarFotoUsuario(String correo, String pathFoto) async {
+    final dbClient = await db;
+    return dbClient.update(
+      'usuarios',
+      {'foto': pathFoto},
+      where: 'correo = ?',
+      whereArgs: [correo],
+    );
+  }
+
+  /// Recupera los datos completos del usuario (incluida la ruta de la foto).
+  Future<Map<String, dynamic>?> obtenerUsuario(String correo) async {
+    final dbClient = await db;
+    final result = await dbClient.query(
+      'usuarios',
+      where: 'correo = ?',
+      whereArgs: [correo],
+      limit: 1,
+    );
+    return result.isNotEmpty ? result.first : null;
   }
 }

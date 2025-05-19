@@ -188,7 +188,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Container(
         width: double.infinity,
         height: MediaQuery.of(context).size.height,
-        decoration: const BoxDecoration(color: Colors.white),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF002A7E), Color(0xFFFF8C3B)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
           child: Column(
@@ -196,7 +202,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               // Título superior fuera del contenedor.
               const Text(
-                '    CREAR CUENTA NUEVA',
+                'CREA TU CUENTA',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 25,
@@ -228,13 +234,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Ícono y mensaje de bienvenida.
                         const Icon(
                           Icons
-                              .credit_card, // También puedes usar Icons.account_box
+                              .account_circle, // También puedes usar Icons.account_box
                           color: Color(0xFF4568DC),
                           size: 80,
                         ),
                         const SizedBox(height: 10.0),
                         const Text(
-                          'Crea tu cuenta',
+                          'Registrate',
                           style: TextStyle(
                             fontSize: 22.0,
                             fontWeight: FontWeight.w600,

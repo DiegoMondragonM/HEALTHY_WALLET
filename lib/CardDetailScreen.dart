@@ -224,7 +224,7 @@ class _CardDetailScreenState extends State<CardDetailScreen>
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
     );
   }
 
@@ -386,10 +386,10 @@ class _CardDetailScreenState extends State<CardDetailScreen>
   Widget _buildCardBalance(_) {
     final bal = _cardBalance.toStringAsFixed(2);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Color(0xFFEDEDED), // gris claro uniforme
-        borderRadius: BorderRadius.circular(15),
+        color: Color.fromARGB(255, 244, 239, 239), // gris claro uniforme
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 5, offset: Offset(0, 3)),
         ],
@@ -397,10 +397,11 @@ class _CardDetailScreenState extends State<CardDetailScreen>
       child: Text(
         "\$$bal",
         style: TextStyle(
-          fontSize: 28,
+          fontSize: 24,
           fontWeight: FontWeight.w600,
           color: Colors.black87,
         ),
+        textAlign: TextAlign.center,
       ),
     );
   }
@@ -459,7 +460,7 @@ class _CardDetailScreenState extends State<CardDetailScreen>
                 Text(
                   "\$${_monthlyExpenses.toStringAsFixed(2)}",
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
@@ -501,7 +502,7 @@ class _CardDetailScreenState extends State<CardDetailScreen>
                 Text(
                   "\$${_monthlyIncomes.toStringAsFixed(2)}",
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),

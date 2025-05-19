@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:mi_wallet/AddCardScreen.dart';
 import 'package:mi_wallet/db_helper.dart';
 
 class DetailEntry {
@@ -180,7 +181,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -212,7 +213,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F5F5),
+        backgroundColor: const Color.fromARGB(255, 16, 79, 168),
         elevation: 0,
         title: const Text(
           'Agregar Movimiento',
@@ -235,8 +236,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               _buildTextField(
                 controller: _amountController,
                 label: "Monto Total",
-                hintText: "\$0.00",
                 keyboardType: TextInputType.number,
+                inputFormatters: [CurrencyInputFormatter()],
+                hintText: "\$0.00 pesos",
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
@@ -249,8 +251,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           children: [
                             Icon(
                               e == "Ingreso"
-                                  ? Icons.arrow_downward
-                                  : Icons.arrow_upward,
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
                               color: e == "Ingreso" ? Colors.green : Colors.red,
                               size: 20,
                             ),
@@ -316,6 +318,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   label: "Monto",
                   hintText: "\$0.00",
                   keyboardType: TextInputType.number,
+                  inputFormatters: [CurrencyInputFormatter()],
                   requiredField: false,
                 ),
                 Row(

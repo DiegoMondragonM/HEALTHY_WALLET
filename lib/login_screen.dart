@@ -129,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '   HEALTHY WALLET',
+                'Inicio de sesión',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 34,
@@ -304,7 +304,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                         },
-                        child: const Text('Primera vez aquí? Regístrate'),
+                        child: const Text('¿Primera vez aquí? Regístrate'),
                       ),
                     ],
                   ),
