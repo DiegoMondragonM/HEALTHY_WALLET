@@ -8,13 +8,19 @@ class DBHelper {
 
   Future<Database> get db async {
     if (_db != null) return _db!;
+
     _db = await _initDB();
     return _db!;
   }
 
+
+
+
   Future<Database> _initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "billetera_local.db");
+    await deleteDatabase(path); // ⚠️ Esto borra la base de datos anterior
+
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
@@ -43,6 +49,19 @@ class DBHelper {
     ''');
 
     await db.execute('''
+      CREATE TABLE presupuestos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        correo TEXT,
+        tarjeta_id INTEGER,
+        nombre TEXT,
+        monto REAL,
+        categoria TEXT,
+        fecha TEXT,
+        monto_restante REAL
+      )
+    ''');
+
+    await db.execute('''
       CREATE TABLE movimientos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         correo TEXT,
@@ -55,6 +74,63 @@ class DBHelper {
       )
     ''');
   }
+
+  // ─── PRESUPUESTOS ──────────────────────────────────────
+  Future<int> insertarPresupuesto(Map<String, dynamic> presupuesto) async {
+    final dbClient = await db;
+    return await dbClient.insert('presupuestos', presupuesto);
+  }
+
+  Future<List<Map<String, dynamic>>> obtenerPresupuestos(String correo, int tarjetaId) async {
+    final dbClient = await db;
+    return await dbClient.query(
+      'presupuestos',
+      where: 'correo = ? AND tarjeta_id = ?',
+      whereArgs: [correo, tarjetaId],
+    );
+  }
+
+  Future<int> eliminarPresupuestosPorTarjeta(int tarjetaId) async {
+    final dbClient = await db;
+    return await dbClient.delete(
+      'presupuestos',
+      where: 'tarjeta_id = ?',
+      whereArgs: [tarjetaId],
+    );
+  }
+
+  Future<void> actualizarPresupuesto(Map<String, dynamic> presupuesto) async {
+    final dbClient = await db;
+    await dbClient.update(
+      'presupuestos',
+      presupuesto,
+      where: 'id = ?',
+      whereArgs: [presupuesto['id']],
+    );
+  }
+
+
+  Future<void> eliminarPresupuesto(int id) async {
+    final dbClient = await db;
+    await dbClient.delete(
+      'presupuestos',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+
+
+  Future<double> obtenerTotalPresupuestos(String correo, int tarjetaId) async {
+    final dbClient = await db;
+    final result = await dbClient.rawQuery(
+      'SELECT SUM(monto) as total FROM presupuestos WHERE correo = ? AND tarjeta_id = ?',
+      [correo, tarjetaId],
+    );
+    return result.first['total'] as double? ?? 0.0;
+  }
+
+
 
   // ─── TARJETAS ──────────────────────────────────────
   Future<int> insertarTarjeta(Map<String, dynamic> tarjeta) async {
@@ -87,9 +163,9 @@ class DBHelper {
   }
 
   Future<List<Map<String, dynamic>>> obtenerMovimientos(
-    String correo,
-    int tarjetaId,
-  ) async {
+      String correo,
+      int tarjetaId,
+      ) async {
     final dbClient = await db;
     return await dbClient.query(
       'movimientos',
@@ -107,7 +183,6 @@ class DBHelper {
     );
   }
 
-  // Total del monto inicial de todas las tarjetas del usuario
   Future<double> obtenerTotalSaldoInicial(String correo) async {
     final dbClient = await db;
     final result = await dbClient.rawQuery(
@@ -130,7 +205,6 @@ class DBHelper {
     );
   }
 
-  // Total de los gastos registrados en movimientos
   Future<double> obtenerTotalGastos(String correo) async {
     final dbClient = await db;
     final result = await dbClient.rawQuery(
@@ -151,9 +225,9 @@ class DBHelper {
   }
 
   Future<Map<String, dynamic>?> validarUsuario(
-    String correo,
-    String password,
-  ) async {
+      String correo,
+      String password,
+      ) async {
     final dbClient = await db;
     final result = await dbClient.query(
       'usuarios',
@@ -169,8 +243,8 @@ class DBHelper {
   }
 
   Future<List<Map<String, dynamic>>> obtenerTodosLosMovimientos(
-    String correo,
-  ) async {
+      String correo,
+      ) async {
     final dbClient = await db;
     return await dbClient.query(
       'movimientos',
@@ -179,18 +253,14 @@ class DBHelper {
     );
   }
 
-  //eliminar datos
   Future<int> eliminarTarjetaYMovimientos(int tarjetaId, String correo) async {
     final dbClient = await db;
-
-    // Primero eliminamos los movimientos relacionados
     await dbClient.delete(
       'movimientos',
       where: 'tarjeta_id = ? AND correo = ?',
       whereArgs: [tarjetaId, correo],
     );
 
-    // Luego eliminamos la tarjeta
     return await dbClient.delete(
       'tarjetas',
       where: 'id = ? AND correo = ?',
